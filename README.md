@@ -41,21 +41,42 @@ The `ensemble/` folder contains the user-voting and query-construction logic use
 
 ## Requirements
 
-- Python `3.10` or `3.11`
-- A virtual environment is recommended
+- Conda environment path: `d:\anaconda3\envs\YARight`
+- Python version used in that environment: `3.12.9`
+- The project is documented below based on the actual installed package versions in `YARight`
 
 Third-party dependencies:
 
-- `numpy`
-- `scipy`
-- `scikit-learn`
-- `networkx`
-- `pandas`
-- `matplotlib`
+- `numpy==2.1.3`
+- `scipy==1.15.2`
+- `scikit-learn==1.6.1`
+- `networkx==3.4.2`
+- `pandas==2.2.3`
+- `matplotlib==3.10.1`
 
 Install all dependencies with:
 
 ```bash
+pip install -r requirements.txt
+```
+
+If you want to use the exact existing environment directly, activate:
+
+```bash
+conda activate YARight
+```
+
+Or call its interpreter explicitly:
+
+```bash
+d:\anaconda3\envs\YARight\python.exe run_ACMC.py
+```
+
+If you want to create a similar environment from scratch, one practical way is:
+
+```bash
+conda create -n YARight python=3.12.9 -y
+conda activate YARight
 pip install -r requirements.txt
 ```
 
@@ -65,6 +86,12 @@ The entry point is:
 
 ```bash
 python run_ACMC.py
+```
+
+With the current conda environment, you can also run:
+
+```bash
+d:\anaconda3\envs\YARight\python.exe run_ACMC.py
 ```
 
 `run_ACMC.py` imports the main algorithm from:
@@ -171,3 +198,4 @@ When `isUpdate=False`, user confidence updating is disabled.
 - The executable script remains at the repository root for convenience.
 - The five algorithm modules have been moved into `core/` for cleaner project organization.
 - The README reflects the current repository structure and import paths.
+- `requirements.txt` is pinned to the package versions currently installed in `d:\anaconda3\envs\YARight`.

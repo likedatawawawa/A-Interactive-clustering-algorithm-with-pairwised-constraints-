@@ -1,14 +1,14 @@
 # ACMC_Oracle
 
-ACMC_Oracle 是一个基于图结构传播、代表性排序与人机交互约束投票的聚类实验项目。
+ACMC_Oracle is a clustering experiment project based on graph propagation, representative ranking, and human-in-the-loop constraint voting.
 
-当前项目主入口为 `run_ACMC.py`，支持：
+The current project entry point is `run_ACMC.py`. It supports:
 
-- 常规批处理流程
-- 半异步流程开关 `use_asy`
-- 置信度更新开关 `isUpdate`
+- standard batch execution
+- a semi-asynchronous mode switch via `use_asy`
+- a confidence update switch via `isUpdate`
 
-## 项目结构
+## Project Structure
 
 ```text
 ACMC_Oracle/
@@ -28,14 +28,14 @@ ACMC_Oracle/
 └── result/
 ```
 
-## 运行环境
+## Environment
 
-- Python `3.10` 或 `3.11`
-- 建议使用虚拟环境 `venv`
+- Python `3.10` or `3.11`
+- A virtual environment such as `venv` is recommended
 
-## 需要安装的包
+## Dependencies
 
-运行 `run_ACMC.py` 及其依赖模块时，实际需要的第三方包如下：
+To run `run_ACMC.py` and the modules it depends on, install the following third-party packages:
 
 - `numpy`
 - `scipy`
@@ -44,63 +44,52 @@ ACMC_Oracle/
 - `pandas`
 - `matplotlib`
 
-其中：
+These packages are used for:
 
-- `numpy`：数值计算、扰动矩阵、统计计算
-- `scipy`：欧氏距离计算
-- `scikit-learn`：`NearestNeighbors`、`LabelEncoder`、`adjusted_rand_score`
-- `networkx`：图结构构建与遍历
-- `pandas`：被 `a_DMCons.py` 导入
-- `matplotlib`：被 `a_DMCons.py` 导入
+- `numpy`: numerical computation and data perturbation
+- `scipy`: Euclidean distance calculation
+- `scikit-learn`: `NearestNeighbors`, `LabelEncoder`, and `adjusted_rand_score`
+- `networkx`: graph construction and traversal
+- `pandas`: imported by `a_DMCons.py`
+- `matplotlib`: imported by `a_DMCons.py`
 
-标准库模块如 `csv`、`os`、`math`、`threading`、`time`、`random` 无需额外安装。
+Standard library modules such as `csv`, `os`, `math`, `threading`, `time`, and `random` do not need to be installed separately.
 
-## 安装方式
+## Installation
 
-### 1. 创建虚拟环境
+### 1. Create a virtual environment
 
 ```bash
 python -m venv .venv
 ```
 
-Windows 激活：
+Activate it on Windows:
 
 ```bash
 .venv\Scripts\activate
 ```
 
-### 2. 安装依赖
-
-```bash
-pip install numpy scipy scikit-learn networkx pandas matplotlib
-```
-
-如果你希望一次性安装，也可以自行创建 `requirements.txt`，内容可写为：
-
-```txt
-numpy
-scipy
-scikit-learn
-networkx
-pandas
-matplotlib
-```
-
-然后执行：
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 如何运行
+You can also install them directly:
 
-主运行文件：
+```bash
+pip install numpy scipy scikit-learn networkx pandas matplotlib
+```
+
+## How To Run
+
+Main entry file:
 
 ```bash
 python run_ACMC.py
 ```
 
-当前 `run_ACMC.py` 默认入口参数位于文件末尾：
+The default entry configuration is defined at the end of `run_ACMC.py`:
 
 ```python
 if __name__ == '__main__':
@@ -120,7 +109,7 @@ if __name__ == '__main__':
     )
 ```
 
-## `run_ACMC` 参数说明
+## `run_ACMC` Parameters
 
 ```python
 run_ACMC(
@@ -136,111 +125,111 @@ run_ACMC(
 )
 ```
 
-- `output_path`：结果输出根目录
-- `algo_name`：算法名称占位参数，当前不会参与结果目录命名
-- `dataset_source`：数据目录名称，例如 `banknote`、`haberman`、`k_test`
-- `repetitions_times`：重复实验次数
-- `error_span`：用户统一错误率
-- `min_users_n`：每次约束查询最少分配用户数
-- `max_users_n`：每次约束查询最多分配用户数
-- `isUpdate`：是否开启置信度更新机制
-- `use_asy`：是否启用半异步版本
+- `output_path`: root directory for experiment outputs
+- `algo_name`: algorithm name placeholder; currently it does not affect the output directory name
+- `dataset_source`: dataset directory name, such as `banknote`, `haberman`, or `k_test`
+- `repetitions_times`: number of repeated runs
+- `error_span`: uniform user error rate
+- `min_users_n`: minimum number of users assigned to each constraint query
+- `max_users_n`: maximum number of users assigned to each constraint query
+- `isUpdate`: whether confidence updating is enabled
+- `use_asy`: whether to use the semi-asynchronous version
 
-## 数据目录说明
+## Dataset Layout
 
-当前代码会从以下目录读取数据：
+The current code reads data from:
 
 ```text
 datasets/<dataset_source>/
 ```
 
-例如：
+Examples:
 
 - `datasets/banknote/banknote.csv`
 - `datasets/haberman/haberman.csv`
 - `datasets/k_test/*.csv`
 
-请注意：
+Please note:
 
-- 当前仓库中同时存在 `dataset/` 和 `datasets/`
-- `run_ACMC.py` 现在使用的是 `datasets/`
-- 如果你准备运行某个数据源，请确认对应文件已经放在 `datasets/<dataset_source>/` 下
+- this repository currently contains both `dataset/` and `datasets/`
+- `run_ACMC.py` uses `datasets/`
+- make sure the target data files are placed under `datasets/<dataset_source>/`
 
-## 输出结果
+## Output
 
-结果默认输出到：
+By default, results are written to:
 
 ```text
 result/26_07_02/<dataset_source>/
 ```
 
-每个数据集下会包含：
+Each dataset output folder includes:
 
-- 每次实验的 `*_result.csv`
-- 运行时间文件 `time/*_runtime.csv`
+- per-run `*_result.csv` files
+- runtime files under `time/*_runtime.csv`
 
-## 核心流程
+## Core Workflow
 
-算法整体流程如下：
+The algorithm follows this general pipeline:
 
-1. 从数据文件读取特征与标签
-2. 对数据加入极小扰动
-3. 构建骨架图并计算代表性排序
-4. 初始化邻域
-5. 传播得到预测标签
-6. 基于不确定性选择待查询点
-7. 通过用户投票更新邻域
-8. 重复迭代直到结束
+1. Load features and labels from the dataset file
+2. Add a very small perturbation to the data
+3. Build the skeleton graph and compute representative ranking
+4. Initialize neighborhoods
+5. Propagate labels to obtain predicted labels
+6. Select uncertain points based on uncertainty
+7. Update neighborhoods through user voting
+8. Repeat until termination
 
-如果 `use_asy=True`，则在投票阶段启用半异步流程。
+If `use_asy=True`, the voting stage uses the semi-asynchronous workflow.
 
-如果 `isUpdate=False`，则关闭用户置信度更新，仅保留固定用户错误率行为。
+If `isUpdate=False`, user confidence updating is disabled and the fixed user error behavior is retained.
 
-## 常见问题
+## FAQ
 
-### 1. 运行时报找不到数据文件
+### 1. The program cannot find the dataset file
 
-请检查：
+Check the following:
 
-- `dataset_source` 是否写对
-- 数据是否放在 `datasets/<dataset_source>/`
+- whether `dataset_source` is correct
+- whether the data files are placed in `datasets/<dataset_source>/`
 
-### 2. 运行时报缺少依赖
+### 2. The program reports missing dependencies
 
-请确认已安装：
+Install the required packages:
 
 ```bash
-pip install numpy scipy scikit-learn networkx pandas matplotlib
+pip install -r requirements.txt
 ```
 
-### 3. 如何切换半异步版本
+### 3. How do I enable the semi-asynchronous version?
 
-把：
+Change:
 
 ```python
 use_asy=False
 ```
 
-改成：
+to:
 
 ```python
 use_asy=True
 ```
 
-### 4. 如何关闭置信度更新
+### 4. How do I disable confidence updating?
 
-把：
+Change:
 
 ```python
 isUpdate=True
 ```
 
-改成：
+to:
 
 ```python
 isUpdate=False
 ```
 
-## 说明
+## Notes
 
-当前 README 以当前仓库中的实际代码结构和 `run_ACMC.py` 为准。
+This README is based on the current repository structure and the actual implementation in `run_ACMC.py`.

@@ -1,23 +1,19 @@
 # ACMC_Oracle
 
-ACMC_Oracle is a clustering experiment project based on graph propagation, representative ranking, and human-in-the-loop constraint voting.
+ACMC_Oracle is an experimental clustering project built around skeleton-graph construction, representative ranking, neighborhood initialization, uncertainty-driven querying, and label propagation.
 
-The current project entry point is `run_ACMC.py`. It supports:
+The repository is organized so that the executable entry script stays at the project root, while the five core algorithm modules are grouped inside a dedicated folder.
 
-- standard batch execution
-- a semi-asynchronous mode switch via `use_asy`
-- a confidence update switch via `isUpdate`
-
-## Project Structure
+## Project Layout
 
 ```text
 ACMC_Oracle/
-├── a_DMCons.py
-├── b_ranking_allocation.py
-├── c_neighborhood_initialization.py
-├── d_influence_model_propagation.py
-├── e_neighborhood_learning.py
-├── run_ACMC.py
+├── core/
+│   ├── a_DMCons.py
+│   ├── b_ranking_allocation.py
+│   ├── c_neighborhood_initialization.py
+│   ├── d_influence_model_propagation.py
+│   └── e_neighborhood_learning.py
 ├── ensemble/
 │   ├── a_pre_cluster.py
 │   ├── b_construct_query_list.py
@@ -25,17 +21,30 @@ ACMC_Oracle/
 │   ├── c_iteration_stage_user_vote_asy.py
 │   └── user.py
 ├── datasets/
-└── result/
+├── result/
+├── requirements.txt
+├── run_ACMC.py
+└── README.md
 ```
 
-## Environment
+## Core Modules
+
+The `core/` folder contains the main ACMC pipeline:
+
+- `a_DMCons.py`: skeleton graph construction
+- `b_ranking_allocation.py`: representative ranking and order allocation
+- `c_neighborhood_initialization.py`: neighborhood initialization
+- `d_influence_model_propagation.py`: label propagation on the skeleton graph
+- `e_neighborhood_learning.py`: iterative neighborhood learning and ACMC main routine
+
+The `ensemble/` folder contains the user-voting and query-construction logic used during interaction.
+
+## Requirements
 
 - Python `3.10` or `3.11`
-- A virtual environment such as `venv` is recommended
+- A virtual environment is recommended
 
-## Dependencies
-
-To run `run_ACMC.py` and the modules it depends on, install the following third-party packages:
+Third-party dependencies:
 
 - `numpy`
 - `scipy`
@@ -44,52 +53,27 @@ To run `run_ACMC.py` and the modules it depends on, install the following third-
 - `pandas`
 - `matplotlib`
 
-These packages are used for:
-
-- `numpy`: numerical computation and data perturbation
-- `scipy`: Euclidean distance calculation
-- `scikit-learn`: `NearestNeighbors`, `LabelEncoder`, and `adjusted_rand_score`
-- `networkx`: graph construction and traversal
-- `pandas`: imported by `a_DMCons.py`
-- `matplotlib`: imported by `a_DMCons.py`
-
-Standard library modules such as `csv`, `os`, `math`, `threading`, `time`, and `random` do not need to be installed separately.
-
-## Installation
-
-### 1. Create a virtual environment
-
-```bash
-python -m venv .venv
-```
-
-Activate it on Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-### 2. Install dependencies
+Install all dependencies with:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-You can also install them directly:
+## Running The Project
 
-```bash
-pip install numpy scipy scikit-learn networkx pandas matplotlib
-```
-
-## How To Run
-
-Main entry file:
+The entry point is:
 
 ```bash
 python run_ACMC.py
 ```
 
-The default entry configuration is defined at the end of `run_ACMC.py`:
+`run_ACMC.py` imports the main algorithm from:
+
+```python
+from core.e_neighborhood_learning import ACMC
+```
+
+The default runnable example at the end of the script is:
 
 ```python
 if __name__ == '__main__':
@@ -109,7 +93,7 @@ if __name__ == '__main__':
     )
 ```
 
-## `run_ACMC` Parameters
+## `run_ACMC(...)` Parameters
 
 ```python
 run_ACMC(
@@ -125,19 +109,19 @@ run_ACMC(
 )
 ```
 
-- `output_path`: root directory for experiment outputs
-- `algo_name`: algorithm name placeholder; currently it does not affect the output directory name
-- `dataset_source`: dataset directory name, such as `banknote`, `haberman`, or `k_test`
+- `output_path`: root folder for outputs
+- `algo_name`: reserved name parameter
+- `dataset_source`: dataset folder name under `datasets/`
 - `repetitions_times`: number of repeated runs
-- `error_span`: uniform user error rate
-- `min_users_n`: minimum number of users assigned to each constraint query
-- `max_users_n`: maximum number of users assigned to each constraint query
-- `isUpdate`: whether confidence updating is enabled
-- `use_asy`: whether to use the semi-asynchronous version
+- `error_span`: user error rate
+- `min_users_n`: minimum number of users per query
+- `max_users_n`: maximum number of users per query
+- `isUpdate`: enables or disables confidence updating
+- `use_asy`: enables or disables the semi-asynchronous interaction routine
 
-## Dataset Layout
+## Dataset Directory
 
-The current code reads data from:
+The current implementation reads input data from:
 
 ```text
 datasets/<dataset_source>/
@@ -149,87 +133,41 @@ Examples:
 - `datasets/haberman/haberman.csv`
 - `datasets/k_test/*.csv`
 
-Please note:
+Make sure the selected dataset files exist under the corresponding `datasets/` subfolder before running the script.
 
-- this repository currently contains both `dataset/` and `datasets/`
-- `run_ACMC.py` uses `datasets/`
-- make sure the target data files are placed under `datasets/<dataset_source>/`
+## Output Directory
 
-## Output
-
-By default, results are written to:
+Results are currently written to:
 
 ```text
 result/26_07_02/<dataset_source>/
 ```
 
-Each dataset output folder includes:
+Typical outputs include:
 
-- per-run `*_result.csv` files
-- runtime files under `time/*_runtime.csv`
+- `*_result.csv` for each run
+- `time/*_runtime.csv` for runtime statistics
 
-## Core Workflow
+## Algorithm Workflow
 
-The algorithm follows this general pipeline:
+The ACMC workflow is:
 
-1. Load features and labels from the dataset file
-2. Add a very small perturbation to the data
-3. Build the skeleton graph and compute representative ranking
-4. Initialize neighborhoods
-5. Propagate labels to obtain predicted labels
-6. Select uncertain points based on uncertainty
-7. Update neighborhoods through user voting
-8. Repeat until termination
+1. Load dataset features and labels
+2. Add a small perturbation to the feature matrix
+3. Build the skeleton graph
+4. Rank nodes by representative order
+5. Initialize neighborhoods from representative and uncertain nodes
+6. Propagate labels on the graph
+7. Select uncertain candidates for new queries
+8. Update neighborhoods through user voting
+9. Repeat until convergence or completion
 
-If `use_asy=True`, the voting stage uses the semi-asynchronous workflow.
+When `use_asy=True`, the project uses the semi-asynchronous neighborhood learning path.
 
-If `isUpdate=False`, user confidence updating is disabled and the fixed user error behavior is retained.
-
-## FAQ
-
-### 1. The program cannot find the dataset file
-
-Check the following:
-
-- whether `dataset_source` is correct
-- whether the data files are placed in `datasets/<dataset_source>/`
-
-### 2. The program reports missing dependencies
-
-Install the required packages:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. How do I enable the semi-asynchronous version?
-
-Change:
-
-```python
-use_asy=False
-```
-
-to:
-
-```python
-use_asy=True
-```
-
-### 4. How do I disable confidence updating?
-
-Change:
-
-```python
-isUpdate=True
-```
-
-to:
-
-```python
-isUpdate=False
-```
+When `isUpdate=False`, user confidence updating is disabled.
 
 ## Notes
 
-This README is based on the current repository structure and the actual implementation in `run_ACMC.py`.
+- The executable script remains at the repository root for convenience.
+- The five algorithm modules have been moved into `core/` for cleaner project organization.
+- The README reflects the current repository structure and import paths.
